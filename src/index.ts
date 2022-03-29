@@ -3,8 +3,8 @@ import { SessionManager } from "./SessionManager";
 import { OutputUpdateHandler } from "./OutputUpdateHandler";
 import {initializeViewer} from "./viewer";
 import {
-  BloomPlugin, DiamondPlugin,
-  GroundPlugin,
+  BloomPlugin, BoxSelectionWidget, DiamondPlugin,
+  GroundPlugin, PickingPlugin,
   ProgressivePlugin,
   setupBackgroundUi, setupImportedLightsUi,
   SSAOPlugin,
@@ -68,32 +68,24 @@ const sessionManager = new SessionManager(ticket, modelViewUrl);
     sessionManager.customizeSession.bind(sessionManager)
   );
 
+  await viewer.addPlugin(new PickingPlugin(BoxSelectionWidget, false, true));
 
   const uiPlugin = await viewer.addPlugin(new TweakpaneUiPlugin());
+
   setupBackgroundUi(viewer)
   uiPlugin.appendUiObject(viewer.scene.activeCamera)
 
   uiPlugin.appendUiObject(paramsUi);
 
-  // uiPlugin.setupPluginUi(PickingPlugin)
+  uiPlugin.setupPluginUi(PickingPlugin)
   uiPlugin.setupPluginUi(TonemapPlugin)
   uiPlugin.setupPluginUi(GroundPlugin)
   uiPlugin.setupPluginUi(SSRPlugin)
-  // uiPlugin.setupPluginUi(CameraViewPlugin)
-  // uiPlugin.setupPluginUi(CanvasRecorderPlugin)
   uiPlugin.setupPluginUi(SSAOPlugin)
-  // uiPlugin.setupPluginUi(SimpleViewerUi)
-  // uiPlugin.setupPluginUi(ObjectRotationPlugin)
   uiPlugin.setupPluginUi(DiamondPlugin)
   uiPlugin.setupPluginUi(ProgressivePlugin)
-  // uiPlugin.appendUiObject(light)
   setupImportedLightsUi(viewer)
   uiPlugin.setupPluginUi(BloomPlugin)
-  // uiPlugin.setupPluginUi(CanvasSnipperPlugin)
-  // uiPlugin.setupPluginUi(AnisotropyPlugin)
-  // uiPlugin.setupPluginUi(MaterialLibraryPlugin)
   uiPlugin.setupPluginUi(TemporalAAPlugin)
-  // uiPlugin.setupPluginUi(HDRiGroundPlugin)
-  // uiPlugin.setupPluginUi(FrameFadePlugin)
 
 })();

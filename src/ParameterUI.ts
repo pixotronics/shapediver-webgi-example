@@ -30,6 +30,7 @@ export class ParameterUI implements IUiConfigContainer{
       label: "Shape Diver",
       children: [ // create the children list dynamically.
         {
+          uuid: 'some-random-uid', // optional, but should be unique if provided
           type: 'slider', // slider, checkbox, dropdown, color, image, folder, or input(text/number)
           label: 'Parameter 1',
           property: [props, 'param1'], // get/set the param1 property from the props object
