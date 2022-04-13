@@ -20,175 +20,109 @@ export class ParameterUI implements IUiConfigContainer{
     }) => Promise<void>
   ) {
 
-    const props = {
-      param1: 0.5,
-      param2: '#ff00ff',
-      param3: 'option2',
-    }
     this.uiConfig = {
       type: "folder",
-      label: "Shape Diver",
-      children: [ // create the children list dynamically.
-        {
-          uuid: 'some-random-uid', // optional, but should be unique if provided
-          type: 'slider', // slider, checkbox, dropdown, color, image, folder, or input(text/number)
-          label: 'Parameter 1',
-          property: [props, 'param1'], // get/set the param1 property from the props object
-          onChange: ()=>{
-            console.log(props)
-          },
-          bounds: [0,1], // required for slider, otherwise optional
-          step: 0.01,
-        },
-        {
-          type: 'color', // slider, checkbox, dropdown, color, image, folder, or input(text/number)
-          label: 'Parameter 2',
-          property: [props, 'param2'], // get/set the param1 property from the props object
-          onChange: ()=>{
-            console.log(props)
-          },
-        },
-        {
-          type: 'dropdown', // slider, checkbox, dropdown, color, image, folder, or input(text/number)
-          label: 'Parameter 3',
-          property: [props, 'param3'], // get/set the param1 property from the props object
-          children: [
-          {
-            label: 'Option 1', // string, optional
-            value: 'option1', // any serializable value
-          },
-          {
-            label: 'Option 2',
-            value: 'option2',
-          },
-          {
-            label: 'Option 3',
-            value: 'option3',
-          },
-          ],
-          onChange: ()=>{
-            console.log(props)
-          },
-        },
-      ],
+      label: "ShapeDiver",
+      children: [],
     }
+
+    let props: {
+      [key: string]: any
+    } = {};
 
     for (let p in parameters) {
       // get the parameter and assign the properties
       const parameterObject = parameters[p];
       this.parameterValues[parameterObject.id] = parameterObject.defval;
+      props[p] = parameterObject.defval;
 
-      const paramDiv = document.createElement("div");
-      const label = document.createElement("label");
-      label.setAttribute("for", parameterObject.id);
-      label.innerHTML = parameterObject.name;
-
-      // for the different types of the parameter, we need different inputs, or at least different options for inputs
-
-      let parameterInputElement:
-        | HTMLInputElement
-        | HTMLSelectElement
-        | null = null;
       if (
         parameterObject.type === "Int" ||
         parameterObject.type === "Float" ||
         parameterObject.type === "Even" ||
         parameterObject.type === "Odd"
       ) {
-        parameterInputElement = document.createElement("input");
-        parameterInputElement.setAttribute("id", parameterObject.id);
-        parameterInputElement.setAttribute("type", "range");
-        parameterInputElement.setAttribute("min", parameterObject.min + "");
-        parameterInputElement.setAttribute("max", parameterObject.max + "");
-        parameterInputElement.setAttribute("value", parameterObject.defval);
+        // cast to number
+        props[p] = +parameterObject.defval;
 
+        // calculate stepSize
+        let stepSize = 1;
         if (parameterObject.type === "Int")
-          parameterInputElement.setAttribute("step", "1");
-        else if (
-          parameterObject.type === "Even" ||
-          parameterObject.type === "Odd"
-        )
-          parameterInputElement.setAttribute("step", "2");
+          stepSize = 1;
+        else if (parameterObject.type === "Even" ||parameterObject.type === "Odd")
+          stepSize = 2;
         else
-          parameterInputElement.setAttribute(
-            "step",
-            1 / Math.pow(10, parameterObject.decimalplaces!) + ""
-          );
+          stepSize = 1 / Math.pow(10, parameterObject.decimalplaces!);
 
-        // onchange listener
-        parameterInputElement.onchange = async () => {
-          this.parameterValues[
-            parameterInputElement!.id
-          ] = parameterInputElement!.value;
-          await parameterUpdateCallback(this.parameterValues);
-        };
+
+        this.uiConfig.children?.push({
+          uuid: parameterObject.id,
+          type: "slider",
+          label: parameterObject.name,
+          property: [props, p],
+          bounds: [parameterObject.min!, parameterObject.max!],
+          stepSize,
+          onChange: () => {
+            this.parameterValues[parameterObject.id] = parameterObject.decimalplaces !== undefined ? props[p].toFixed(parameterObject.decimalplaces) : props[p];
+            parameterUpdateCallback(this.parameterValues);
+          }
+        })
       } else if (parameterObject.type === "Bool") {
-        parameterInputElement = document.createElement("input");
-        parameterInputElement.setAttribute("id", parameterObject.id);
-        parameterInputElement.setAttribute("type", "checkbox");
-        parameterInputElement.setAttribute("checked", parameterObject.defval);
-
-        // onchange listener
-        parameterInputElement.onclick = async () => {
-          this.parameterValues[parameterInputElement!.id] =
-            (<HTMLInputElement>parameterInputElement)!.checked + "";
-          await parameterUpdateCallback(this.parameterValues);
-        };
+        this.uiConfig.children?.push({
+          uuid: parameterObject.id,
+          type: "checkbox",
+          label: parameterObject.name,
+          property: [props, p],
+          onChange: () => {
+            this.parameterValues[parameterObject.id] = props[p];
+            parameterUpdateCallback(this.parameterValues);
+          }
+        })
       } else if (parameterObject.type === "String") {
-        parameterInputElement = document.createElement("input");
-        parameterInputElement.setAttribute("id", parameterObject.id);
-        parameterInputElement.setAttribute("type", "text");
-        parameterInputElement.setAttribute("value", parameterObject.defval);
-
-        // onchange listener
-        parameterInputElement.onchange = async () => {
-          this.parameterValues[
-            parameterInputElement!.id
-          ] = parameterInputElement!.value;
-          await parameterUpdateCallback(this.parameterValues);
-        };
+        this.uiConfig.children?.push({
+          uuid: parameterObject.id,
+          type: "input",
+          label: parameterObject.name,
+          property: [props, p],
+          onChange: () => {
+            this.parameterValues[parameterObject.id] = props[p];
+            parameterUpdateCallback(this.parameterValues);
+          }
+        })
       } else if (parameterObject.type === "Color") {
-        parameterInputElement = document.createElement("input");
-        parameterInputElement.setAttribute("id", parameterObject.id);
-        parameterInputElement.setAttribute("type", "color");
-        parameterInputElement.setAttribute("value", parameterObject.defval);
-        parameterInputElement.onselect = () => console.log("a");
-
-        // onchange listener
-        parameterInputElement.onchange = async () => {
-          // value conversion to fit our types
-          let value = parameterInputElement!.value;
-          value = value.replace("#", "0x") + "ff";
-          this.parameterValues[parameterInputElement!.id] = value;
-          await parameterUpdateCallback(this.parameterValues);
-        };
+        this.uiConfig.children?.push({
+          uuid: parameterObject.id,
+          type: "color",
+          label: parameterObject.name,
+          property: [props, p],
+          onChange: () => {
+            this.parameterValues[parameterObject.id] =  props[p].replace("#", "0x");
+            parameterUpdateCallback(this.parameterValues);
+          }
+        })
       } else if (parameterObject.type === "StringList") {
-        parameterInputElement = document.createElement("select");
-        parameterInputElement.setAttribute("id", parameterObject.id);
+        // cast to number
+        props[p] = +parameterObject.defval;
+        
+        const children: (UiObjectConfig<any> | (() => UiObjectConfig<any> | UiObjectConfig<any>[]))[] | undefined = [];
         for (let j = 0; j < parameterObject.choices!.length; j++) {
-          let option = document.createElement("option");
-          option.setAttribute("value", j + "");
-          option.setAttribute("name", parameterObject.choices![j]);
-          option.innerHTML = parameterObject.choices![j];
-          if (+parameterObject.defval === j)
-            option.setAttribute("selected", "");
-          parameterInputElement.appendChild(option);
+          children.push({
+            label: parameterObject.choices![j],
+            value: j,
+          })
         }
 
-        // onchange listener
-        parameterInputElement.onchange = async () => {
-          this.parameterValues[
-            parameterInputElement!.id
-          ] = parameterInputElement!.value;
-          await parameterUpdateCallback(this.parameterValues);
-        };
-      }
-
-      if (parameterInputElement) {
-        if (parameterObject.hidden) paramDiv.setAttribute("hidden", "");
-        paramDiv.appendChild(label);
-        paramDiv.appendChild(parameterInputElement);
-        parent.appendChild(paramDiv);
+        this.uiConfig.children?.push({
+          uuid: parameterObject.id,
+          type: "drowpdown",
+          label: parameterObject.name,
+          property: [props, p],
+          children,
+          onChange: () => {
+            this.parameterValues[parameterObject.id] = props[p];
+            parameterUpdateCallback(this.parameterValues);
+          }
+        })
       }
     }
   }
