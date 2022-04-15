@@ -6,7 +6,7 @@ import {
   BloomPlugin, BoxSelectionWidget, DiamondPlugin,
   GroundPlugin, PickingPlugin,
   ProgressivePlugin,
-  setupBackgroundUi, setupImportedLightsUi,
+  SimpleBackgroundEnvUiPlugin,
   SSAOPlugin,
   SSRPlugin, TemporalAAPlugin,
   TonemapPlugin,
@@ -69,10 +69,11 @@ const sessionManager = new SessionManager(ticket, modelViewUrl);
   );
 
   await viewer.addPlugin(new PickingPlugin(BoxSelectionWidget, false, true));
+  await viewer.addPlugin(SimpleBackgroundEnvUiPlugin)
 
   const uiPlugin = await viewer.addPlugin(new TweakpaneUiPlugin());
 
-  setupBackgroundUi(viewer)
+  uiPlugin.setupPluginUi(SimpleBackgroundEnvUiPlugin)
   uiPlugin.appendUiObject(viewer.scene.activeCamera)
 
   uiPlugin.appendUiObject(paramsUi);
@@ -84,7 +85,6 @@ const sessionManager = new SessionManager(ticket, modelViewUrl);
   uiPlugin.setupPluginUi(SSAOPlugin)
   uiPlugin.setupPluginUi(DiamondPlugin)
   uiPlugin.setupPluginUi(ProgressivePlugin)
-  setupImportedLightsUi(viewer)
   uiPlugin.setupPluginUi(BloomPlugin)
   uiPlugin.setupPluginUi(TemporalAAPlugin)
 
