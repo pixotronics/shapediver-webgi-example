@@ -68,17 +68,15 @@ const sessionManager = new SessionManager(ticket, modelViewUrl);
     sessionManager.customizeSession.bind(sessionManager)
   );
 
-  await viewer.addPlugin(new PickingPlugin(BoxSelectionWidget, false, true));
+  // await viewer.addPlugin(new PickingPlugin(BoxSelectionWidget, false, true));
   await viewer.addPlugin(SimpleBackgroundEnvUiPlugin)
 
   const uiPlugin = await viewer.addPlugin(new TweakpaneUiPlugin());
 
   uiPlugin.setupPluginUi(SimpleBackgroundEnvUiPlugin)
   uiPlugin.appendUiObject(viewer.scene.activeCamera)
-
   uiPlugin.appendUiObject(paramsUi);
-
-  uiPlugin.setupPluginUi(PickingPlugin)
+  // uiPlugin.setupPluginUi(PickingPlugin)
   uiPlugin.setupPluginUi(TonemapPlugin)
   uiPlugin.setupPluginUi(GroundPlugin)
   uiPlugin.setupPluginUi(SSRPlugin)

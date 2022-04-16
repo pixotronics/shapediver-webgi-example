@@ -1,20 +1,6 @@
 import { ShapeDiverResponseParameter } from "@shapediver/sdk.geometry-api-sdk-v2";
 import type {IUiConfigContainer, UiObjectConfig} from "webgi";
 
-
-let mouseButtons = 0;
-document.addEventListener('mousedown', function(event) {
-  mouseButtons = event.buttons;
-}, true);
-document.addEventListener('mouseup', function(event) {
-  mouseButtons = event.buttons;
-}, true);
-document.addEventListener('mousemove', function(event) {
-  mouseButtons = event.buttons;
-}, true);
-
-
-
 /**
  * Uses the parameters of the initial responseDto to create an UI
  *
@@ -37,6 +23,7 @@ export class ParameterUI implements IUiConfigContainer{
     this.uiConfig = {
       type: "folder",
       label: "ShapeDiver",
+      expanded: true,
       children: [],
     }
 
@@ -76,8 +63,8 @@ export class ParameterUI implements IUiConfigContainer{
           property: [props, p],
           bounds: [parameterObject.min!, parameterObject.max!],
           stepSize,
-          onChange: () => {
-            if((mouseButtons & 1) !== 0) return;
+          onChange: (ev:any) => {
+            if(!ev.last) return;
             this.parameterValues[parameterObject.id] = parameterObject.decimalplaces !== undefined ? props[p].toFixed(parameterObject.decimalplaces) : props[p];
             parameterUpdateCallback(this.parameterValues);
           }
@@ -110,8 +97,8 @@ export class ParameterUI implements IUiConfigContainer{
           type: "color",
           label: parameterObject.name,
           property: [props, p],
-          onChange: () => {
-            if((mouseButtons & 1) !== 0) return;
+          onChange: (ev: any) => {
+            if(!ev.last) return;
             this.parameterValues[parameterObject.id] =  props[p].replace("#", "0x");
             parameterUpdateCallback(this.parameterValues);
           }
