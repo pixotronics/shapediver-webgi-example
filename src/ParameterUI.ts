@@ -117,7 +117,7 @@ export class ParameterUI implements IUiConfigContainer{
 
         this.uiConfig.children?.push({
           uuid: parameterObject.id,
-          type: "drowpdown",
+          type: "dropdown",
           label: parameterObject.name,
           property: [props, p],
           children,
