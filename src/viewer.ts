@@ -4,7 +4,9 @@ import {
     ITexture,
     ProgressivePlugin,
     setupCoreWebGiViewer,
-    ViewerApp
+    ViewerApp,
+    GroundPlugin,
+    THREE
 } from "webgi";
 
 function disposeModel(model: any) {
@@ -71,5 +73,15 @@ export async function initializeViewer() {
         .getManager()!
         .importer!.importSinglePath<ITexture>(ee2)
     await viewer.scene.setEnvironment(env);
+    viewer.setBackground('#b6cadf')
+    const groundPlugin = viewer.getPlugin(GroundPlugin)
+    groundPlugin!.groundReflection = false
+    groundPlugin!.material!.roughness = 1
+    groundPlugin!.material!.metalness = 0.
+    groundPlugin!.material!.opacity = 0.9
+    groundPlugin!.material!.transmission = 0.02
+    groundPlugin!.shadowBaker!.light!.randomParams.spread = 1
+    groundPlugin!.shadowBaker!.light.randomParams.direction = new THREE.Vector3(0, 1, 0)
+    groundPlugin!.shadowBaker!.groundMapMode = 'alphaMap'
     return viewer;
 }
