@@ -34,6 +34,8 @@ export class ParameterUI implements IUiConfigContainer{
     for (let p in parameters) {
       // get the parameter and assign the properties
       const parameterObject = parameters[p];
+      if(parameterObject.hidden === true) continue;
+      
       this.parameterValues[parameterObject.id] = parameterObject.defval;
       props[p] = parameterObject.defval;
 
