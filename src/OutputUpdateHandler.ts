@@ -158,6 +158,7 @@ const OutputUpdateHandler = async (
           "Default material",
           material
         );
+        console.warn('Cannot load glTF 1.0 asset')
         document.dispatchEvent(
             new CustomEvent("modelLoad", { detail: { item, i, output: outputVersion } })
         );

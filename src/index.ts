@@ -3,7 +3,7 @@ import { SessionManager } from "./SessionManager";
 import { OutputUpdateHandler } from "./OutputUpdateHandler";
 import {initializeViewer} from "./viewer";
 import {
-  BloomPlugin, BoxSelectionWidget, DiamondPlugin,
+  BloomPlugin, DiamondPlugin, getUrlQueryParam,
   GroundPlugin, PickingPlugin,
   ProgressivePlugin,
   SimpleBackgroundEnvUiPlugin,
@@ -20,9 +20,7 @@ import {
  *   * https://help.shapediver.com/doc/Enable-embedding.1881571334.html
  *   * https://help.shapediver.com/doc/Geometry-Backend.1863942173.html
  */
-const ticket =
-  "d9cd75b90722adaa07bc36be17c4b79df0432717e711f9986f5fc6770d2ce89002531f39c180947c7f561d794e04dc3e345d0046b273759caf40ae5b113778236dd6d5c1170e95912556a1486985c4d53f0402a3432e0cf84f5b3139a0f640cbbb490b243332f0-6e2fe2c513efb54f7081039330441893";
-// "6058c1f795981f170476a4192113878dae12f7ad26425a1125b8b134f19ca4063e5022685ffab211558f6591add8a682d76af04e5aeef08e15261f8f5f8e427433d783c0a7bff6308437c1369a4a6bd0dfcc52dd551efebbdfcf52a80fd963e4853081850ec09e-8861545134a089b07a9c68c68f43337a";
+const ticket = getUrlQueryParam('t') || '06578a6051806f23eb0c086cd688c7372adb7bffee91241b618f90371f132d01acfb2bb7b47ada678ec097f1bc2b895d567dc3dcc86fecf13ead84dee612bd4f320d515efeec64d5e31e597526a8012fa9970ba70ca616ecf25846f903218b180358215d310287-b2b6d710e669275ddc17a9d690071a4e'
 const modelViewUrl = "https://sdeuc1.eu-central-1.shapediver.com";
 
 /**
@@ -71,6 +69,7 @@ const sessionManager = new SessionManager(ticket, modelViewUrl);
   // await viewer.addPlugin(new PickingPlugin(BoxSelectionWidget, false, true));
   await viewer.addPlugin(SimpleBackgroundEnvUiPlugin)
 
+  const picking = await viewer.addPlugin(new PickingPlugin());
   const uiPlugin = await viewer.addPlugin(new TweakpaneUiPlugin());
 
   uiPlugin.setupPluginUi(SimpleBackgroundEnvUiPlugin)
@@ -85,5 +84,6 @@ const sessionManager = new SessionManager(ticket, modelViewUrl);
   uiPlugin.setupPluginUi(ProgressivePlugin)
   uiPlugin.setupPluginUi(BloomPlugin)
   uiPlugin.setupPluginUi(TemporalAAPlugin)
+  uiPlugin.setupPluginUi(PickingPlugin)
 
 })();
