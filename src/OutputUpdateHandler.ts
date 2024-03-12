@@ -112,7 +112,8 @@ const OutputUpdateHandler = async (
           `Content item ${i + 1}/${numOfItems}, glTF 2.0 asset`,
           item,
           "Default material",
-          material
+          material,
+            outputVersion,
         );
         document.dispatchEvent(
           new CustomEvent("modelLoad", { detail: { item, i, output: outputVersion } })
@@ -153,12 +154,13 @@ const OutputUpdateHandler = async (
          * material defines the default material to be applied.
          */
         console.log(
-          `Content item ${i + 1}/${numOfItems}, glTF 1.0 asset`,
+          `Content item ${i + 1}/${numOfItems}, glTF glb 2.0 asset`,
           item,
           "Default material",
-          material
+          material,
+            outputVersion
         );
-        console.warn('Cannot load glTF 1.0 asset')
+        console.warn('Loading glTF glb 2.0 asset')
         document.dispatchEvent(
             new CustomEvent("modelLoad", { detail: { item, i, output: outputVersion } })
         );
