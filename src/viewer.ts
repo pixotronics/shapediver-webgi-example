@@ -1,11 +1,4 @@
-import {
-    DiamondPlugin,
-    IModel,
-    ITexture,
-    ProgressivePlugin,
-    ViewerApp,
-    GroundPlugin, Vector3, CoreViewerApp, LoadingScreenPlugin,
-} from "webgi";
+import {CoreViewerApp, DiamondPlugin, IModel, LoadingScreenPlugin, ViewerApp} from "webgi";
 
 function disposeModel(model: any) {
     model.dispose();
@@ -43,14 +36,32 @@ export async function initializeViewer() {
                 models[uid][index].forEach((m: IModel) => makeDiamonds(m.modelObject, viewer.getPlugin(DiamondPlugin)!));
 
                 ms.traverse((child: any)=>{
-                    if(name.toLowerCase().includes('diamond')) {
-                        console.log(child.material?.name)
-                        viewer.getPlugin(DiamondPlugin)!.makeDiamond(child.material, {cacheKey: name}, {})
-                    }else if(child.material) {
-                        child.material.metalness = 1;
-                        child.material.roughness = 0.05;
-                        console.log(child.material?.name, name)
+                    if(!child.material || child.material.userData.__processed) return;
+                    if(child.material?.name === 'ground'){
+                        child.visible = false
+                        return
                     }
+                    const parts = child.material.name.split('.')
+                    console.log(child.material?.name, name, parts)
+                    if(parts[0] === 'gemstone') {
+                        child.material.name = 'Gem'
+                        const size = parts[2]
+                        if(size !== 'big') child.material.name += ' 01'
+                        viewer.getPlugin(DiamondPlugin)!.makeDiamond(child.material, {cacheKey: parts[1], normalMapRes: 512}, {})
+
+                        child.material.envMapIntensity = 1.5
+                        child.material.dispersion = 0.004
+                        child.material.gammaFactor = 1.09
+                        child.material.reflectivity = 0.46
+                        child.material.rayBounces = 8
+                        // child.material.boostFactors.set(2, 2, 2)
+
+                    }else {
+                        child.material.metalness = 1;
+                        child.material.roughness = 0;
+                        child.material.name = 'Metal'
+                    }
+                    child.material.userData.__processed = true
                 })
 
                 viewer.setDirty();
@@ -62,15 +73,10 @@ export async function initializeViewer() {
     const viewer = new CoreViewerApp(
         {canvas: document.getElementById("mcanvas") as HTMLCanvasElement},
     )
+
     await viewer.initialize({})
     viewer.getPlugin(LoadingScreenPlugin)!.showFileNames = false;
     ;(window as any).viewer = viewer;
-    viewer.getPlugin(ProgressivePlugin)!.maxFrameCount = 200;
     viewer.scene.modelRoot.modelObject.scale.set(0.1, 0.1, 0.1);
-    const ee2 = "https://demo-assets.pixotronics.com/pixo/hdr/gem_2.hdr";
-    viewer.getPlugin(GroundPlugin)!.material!.roughness = 1
-    viewer.getPlugin(GroundPlugin)!.material!.metalness = 0
-    await viewer.setEnvironmentMap(ee2);
-    viewer.scene.setBackgroundColor('#b6cadf')
     return viewer;
 }

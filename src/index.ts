@@ -3,15 +3,18 @@ import { SessionManager } from "./SessionManager";
 import { OutputUpdateHandler } from "./OutputUpdateHandler";
 import {initializeViewer} from "./viewer";
 import {
-  BloomPlugin, DiamondPlugin, getUrlQueryParam,
-  GroundPlugin, PickingPlugin,
-  ProgressivePlugin,
+  AssetExporterPlugin,
+  BloomPlugin, DepthOfFieldPlugin, DiamondPlugin, FileTransferPlugin, getUrlQueryParam,
+  GroundPlugin, mobileAndTabletCheck, OutlinePlugin, PickingPlugin,
+  ProgressivePlugin, RandomizedDirectionalLightPlugin,
   SimpleBackgroundEnvUiPlugin,
   SSAOPlugin,
   SSRPlugin, TemporalAAPlugin,
   TonemapPlugin,
   TweakpaneUiPlugin
 } from "webgi";
+// @ts-ignore
+import sampleScene from '/sample_scene.vjson?url'
 
 /**
  * Ticket for embedding and model view url from shapediver.com/app
@@ -20,7 +23,9 @@ import {
  *   * https://help.shapediver.com/doc/Enable-embedding.1881571334.html
  *   * https://help.shapediver.com/doc/Geometry-Backend.1863942173.html
  */
-const ticket = getUrlQueryParam('t') || '06578a6051806f23eb0c086cd688c7372adb7bffee91241b618f90371f132d01acfb2bb7b47ada678ec097f1bc2b895d567dc3dcc86fecf13ead84dee612bd4f320d515efeec64d5e31e597526a8012fa9970ba70ca616ecf25846f903218b180358215d310287-b2b6d710e669275ddc17a9d690071a4e'
+const ticket = getUrlQueryParam('t') ||
+    // '06578a6051806f23eb0c086cd688c7372adb7bffee91241b618f90371f132d01acfb2bb7b47ada678ec097f1bc2b895d567dc3dcc86fecf13ead84dee612bd4f320d515efeec64d5e31e597526a8012fa9970ba70ca616ecf25846f903218b180358215d310287-b2b6d710e669275ddc17a9d690071a4e'
+    '1ee92c54db2bdf9202211b7775f2627af5d277ca0cfc478cd1bf5e5f0112f98b5925328fb001d12972b2356f4c402737e0d213b5ca14c00038e6037a4f5736c302e468ddc1017d1b05bb7e9675d7d73176fd43a071025fca6c66644446e7a3dd726bcd0520dd53-71149e64e7d4d08fc603087102da23a8'
 const modelViewUrl = "https://sdeuc1.eu-central-1.shapediver.com";
 
 /**
@@ -68,22 +73,36 @@ const sessionManager = new SessionManager(ticket, modelViewUrl);
 
   // await viewer.addPlugin(new PickingPlugin(BoxSelectionWidget, false, true));
   await viewer.addPlugin(SimpleBackgroundEnvUiPlugin)
+  await viewer.addPlugin(FileTransferPlugin)
+  await viewer.addPlugin(AssetExporterPlugin)
 
   const picking = await viewer.addPlugin(new PickingPlugin());
-  const uiPlugin = await viewer.addPlugin(new TweakpaneUiPlugin());
+  await viewer.addPlugin(OutlinePlugin)
+  viewer.renderer.refreshPipeline()
 
+  const uiPlugin = await viewer.addPlugin(new TweakpaneUiPlugin(!mobileAndTabletCheck()));
+  uiPlugin.colorMode = 'white'
+
+  uiPlugin.appendUiObject(paramsUi);
   uiPlugin.setupPluginUi(SimpleBackgroundEnvUiPlugin)
   uiPlugin.appendUiObject(viewer.scene.activeCamera)
-  uiPlugin.appendUiObject(paramsUi);
   // uiPlugin.setupPluginUi(PickingPlugin)
   uiPlugin.setupPluginUi(TonemapPlugin)
+  // uiPlugin.setupPluginUi(OutlinePlugin)
   uiPlugin.setupPluginUi(GroundPlugin)
   uiPlugin.setupPluginUi(SSRPlugin)
   uiPlugin.setupPluginUi(SSAOPlugin)
   uiPlugin.setupPluginUi(DiamondPlugin)
-  uiPlugin.setupPluginUi(ProgressivePlugin)
+  // uiPlugin.setupPluginUi(ProgressivePlugin)
   uiPlugin.setupPluginUi(BloomPlugin)
-  uiPlugin.setupPluginUi(TemporalAAPlugin)
+  // uiPlugin.setupPluginUi(TemporalAAPlugin)
   uiPlugin.setupPluginUi(PickingPlugin)
+  uiPlugin.setupPluginUi(AssetExporterPlugin)
+  uiPlugin.setupPluginUi(DepthOfFieldPlugin)
+  uiPlugin.setupPluginUi(RandomizedDirectionalLightPlugin)
+
+  await viewer.load(sampleScene)
+  viewer.getPlugin(ProgressivePlugin)!.maxFrameCount = 64;
+  // viewer.scene.setBackgroundColor('#b6cadf')
 
 })();
