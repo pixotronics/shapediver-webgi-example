@@ -35,7 +35,7 @@ export class ParameterUI implements IUiConfigContainer{
       // get the parameter and assign the properties
       const parameterObject = parameters[p];
       if(parameterObject.hidden === true) continue;
-      
+
       this.parameterValues[parameterObject.id] = parameterObject.defval;
       props[p] = parameterObject.defval;
 
@@ -72,6 +72,9 @@ export class ParameterUI implements IUiConfigContainer{
           }
         })
       } else if (parameterObject.type === "Bool") {
+        // cast to bool
+        props[p] = parameterObject.defval === "true";
+
         this.uiConfig.children?.push({
           uuid: parameterObject.id,
           type: "checkbox",

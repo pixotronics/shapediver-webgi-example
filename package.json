@@ -12,8 +12,8 @@
     "@shapediver/sdk.geometry-api-sdk-v2": "^1.2.3",
     "typescript": "5.4.2",
     "vite": "^5.1.5",
-    "webgi": "https://storage.googleapis.com/dist.pixotronics.com/webgi/runtime/bundle-0.9.3.tgz",
-    "@types/webgi": "https://storage.googleapis.com/dist.pixotronics.com/webgi/runtime/bundle-types-0.9.3.tgz"
+    "webgi": "https://storage.googleapis.com/dist.pixotronics.com/webgi/runtime/bundle-0.9.6.tgz",
+    "@types/webgi": "https://storage.googleapis.com/dist.pixotronics.com/webgi/runtime/bundle-types-0.9.6.tgz"
   },
   "resolutions": {
     "@babel/preset-env": "7.13.8"
