@@ -80,8 +80,6 @@ export class SessionManager {
     }
   }
 
-  private _stateCache = new Map<string, ShapeDiverResponseDto>();
-
   /**
    * Customize the session using the provided parameter set
    *
@@ -91,14 +89,11 @@ export class SessionManager {
     console.log("Parameter values", parameters);
     const customizationCounter = ++this.customizationCounter;
 
-    const key = JSON.stringify(parameters) + this.defaultState!.sessionId; // todo defaultState?
-
-    const newState = this._stateCache.get(key) ?? await this.sdk.utils.submitAndWaitForCustomization(
-      this.sdk,
-      this.defaultState!.sessionId!,
-      parameters
+    const newState = await this.sdk.utils.submitAndWaitForCustomization(
+        this.sdk,
+        this.defaultState!.sessionId!,
+        parameters
     );
-    this._stateCache.set(key, newState);
 
     /**
      * If another customization request has been made, we stop our progress and
