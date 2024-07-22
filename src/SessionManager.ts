@@ -1,84 +1,44 @@
-import {
-  create,
-  ShapeDiverResponseDto,
-  ShapeDiverResponseOutput,
-  ShapeDiverSdk
-} from "@shapediver/sdk.geometry-api-sdk-v2";
+import { createSession, IOutputApi, ISessionApi } from '@shapediver/viewer.session';
 
 /**
  * The SessionManager contains functionality to interpret
  * the information resulting from calls to the
- * ShapeDiver Geometry Backend API.
+ * ShapeDiver Viewer API (headless version).
  */
 export class SessionManager {
-  readonly sdk: ShapeDiverSdk;
-  defaultState?: ShapeDiverResponseDto;
-  currentState?: ShapeDiverResponseDto;
-  outputUpdateHandler?: (
-    outputVersion: ShapeDiverResponseOutput,
-    materialOutputVersion?: ShapeDiverResponseOutput
+  // #region Properties (4)
+
+  private loadedOutputVersions: { [key: string]: string | undefined } = {};
+  private sessionApi?: ISessionApi;
+
+  public customizationCounter = 0;
+  public outputUpdateHandler?: (
+    outputApi: IOutputApi,
+    materialOutputApi?: IOutputApi
   ) => Promise<void>;
 
-  customizationCounter = 0;
+  // #endregion Properties (4)
+
+  // #region Constructors (1)
 
   /**
    *
    * @param ticket Ticket for embedding, find it in your dashboard on shapediver.com/app
    * @param modelViewUrl model view url, find it in your dashboard on shapediver.com/app
    */
-  constructor(readonly ticket: string, readonly modelViewUrl: string) {
-    this.sdk = create(modelViewUrl);
+  constructor(readonly ticket: string, readonly modelViewUrl: string) { }
+
+  // #endregion Constructors (1)
+
+  // #region Public Getters And Setters (1)
+
+  public get parameters() {
+    return this.sessionApi?.parameters;
   }
 
-  /**
-   * Creates a session with the model identified by the ticket,
-   * and processes the default output versions.
-   */
-  public async init() {
-    this.defaultState = await this.sdk.session.init(this.ticket);
-    this.currentState = this.defaultState;
-    await this.processOutputUpdates(this.defaultState, this.currentState, true);
-  }
+  // #endregion Public Getters And Setters (1)
 
-  /**
-   * Processing of output updates. Compares states of outputs and
-   * calls the handler for output updates in case of changes.
-   * @param newState Response which contains the new status
-   * @param prevState Response which contains the previous status
-   * @param forceUpdate Whether calling the output update handler should be forced
-   */
-  private async processOutputUpdates(
-    newState: ShapeDiverResponseDto,
-    prevState: ShapeDiverResponseDto,
-    forceUpdate: boolean
-  ) {
-    /** iterate output ids and check for new versions */
-    for (let o in newState.outputs) {
-      const outputVersion = <ShapeDiverResponseOutput>newState.outputs[o];
-      const prevOutputVersion = <ShapeDiverResponseOutput>prevState.outputs![o];
-
-      /**
-       * here we check the output version
-       * if the version is the same as the previous one,
-       * the data of the output stays the same
-       */
-      if (
-        this.outputUpdateHandler &&
-        (forceUpdate || outputVersion.version !== prevOutputVersion.version)
-      ) {
-        /**
-         * call the handler using the updated output,
-         * and the optional output which defines its default materials
-         */
-        this.outputUpdateHandler(
-          outputVersion,
-          outputVersion.material
-            ? <ShapeDiverResponseOutput>newState.outputs[outputVersion.material]
-            : outputVersion
-        );
-      }
-    }
-  }
+  // #region Public Methods (2)
 
   /**
    * Customize the session using the provided parameter set
@@ -89,11 +49,7 @@ export class SessionManager {
     console.log("Parameter values", parameters);
     const customizationCounter = ++this.customizationCounter;
 
-    const newState = await this.sdk.utils.submitAndWaitForCustomization(
-        this.sdk,
-        this.defaultState!.sessionId!,
-        parameters
-    );
+    await this.sessionApi?.customize(parameters);
 
     /**
      * If another customization request has been made, we stop our progress and
@@ -102,8 +58,62 @@ export class SessionManager {
      */
     if (this.customizationCounter !== customizationCounter) return;
 
-    const currentState = this.currentState;
-    this.currentState = newState;
-    await this.processOutputUpdates(newState, currentState!, false);
+    await this.processOutputUpdates(false);
   }
+
+  /**
+   * Creates a session with the model identified by the ticket,
+   * and processes the default output versions.
+   */
+  public async init() {
+    this.sessionApi = await createSession({
+      ticket: this.ticket,
+      modelViewUrl: this.modelViewUrl,
+    });
+    await this.processOutputUpdates(true);
+  }
+
+  // #endregion Public Methods (2)
+
+  // #region Private Methods (1)
+
+  /**
+   * Processing of output updates. Compares versions of outputs and
+   * calls the handler for output updates in case of changes.
+   * @param forceUpdate Whether calling the output update handler should be forced
+   */
+  private async processOutputUpdates(forceUpdate: boolean) {
+    if (!this.sessionApi) return;
+
+    /** iterate output ids and check for new versions */
+    for (const outputId in this.sessionApi.outputs) {
+      const outputApi = this.sessionApi.outputs[outputId];
+
+      const outputVersion = outputApi.version
+      const prevOutputVersion = this.loadedOutputVersions[outputId];
+
+      /**
+       * here we check the output version
+       * if the version is the same as the previous one,
+       * the data of the output stays the same
+       */
+      if (
+        this.outputUpdateHandler &&
+        (forceUpdate || outputVersion !== prevOutputVersion)
+      ) {
+        this.loadedOutputVersions[outputId] = outputVersion;
+
+        /**
+         * call the handler using the updated output,
+         * and the optional output which defines its default materials
+         */
+        this.outputUpdateHandler(
+          outputApi,
+          outputApi.material ? this.sessionApi.outputs[outputApi.material] : undefined
+        );
+      }
+    }
+  }
+
+  // #endregion Private Methods (1)
 }

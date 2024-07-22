@@ -51,7 +51,7 @@ const init = async () => {
 
   // Create a minimal user interface
   const paramsUi = new ParameterUI(
-      sessionManager.defaultState?.parameters!,
+      sessionManager.parameters!,
       <HTMLDivElement>document.getElementById("parameters"),
       sessionManager.customizeSession.bind(sessionManager)
   );

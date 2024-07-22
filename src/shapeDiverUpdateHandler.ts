@@ -1,5 +1,5 @@
 import {AViewerPlugin, IModel, MathUtils, ViewerApp} from "webgi";
-import {ShapeDiverResponseOutput, ShapeDiverResponseOutputContent} from '@shapediver/sdk.geometry-api-sdk-v2'
+import { IOutputApi } from "@shapediver/viewer.session";
 
 export class ShapeDiverUpdateHandler extends AViewerPlugin<''>{
     enabled = true
@@ -9,15 +9,15 @@ export class ShapeDiverUpdateHandler extends AViewerPlugin<''>{
 
     processModel = (model: IModel, v: ViewerApp)=>{}
 
-    onModelLoad = async (props: {item: ShapeDiverResponseOutputContent, i: number, output: ShapeDiverResponseOutput}) => {
+    onModelLoad = async (props: {outputApi: IOutputApi, i: number}) => {
         const viewer = this._viewer
         if (!viewer) return;
         console.warn('modelLoad', props);
-        const name = props.output.name;
+        const name = props.outputApi.name;
         const index = props.i;
-        const uid = props.output.uid || MathUtils.generateUUID();
+        const uid = props.outputApi.uid || MathUtils.generateUUID();
 
-        const ms = await viewer.load(props.item.href + "#f" + index + ".glb", {autoScale: false, pseudoCenter: false})
+        const ms = await viewer.load(props.outputApi.content![props.i].href + "#f" + index + ".glb", {autoScale: false, pseudoCenter: false})
         ms.name = name
         if (this.models && this.models[uid] && this.models[uid][index]) { // todo: make clearAll
             this.models[uid][index].forEach((m: IModel) => m.modelObject.dispose());
@@ -31,16 +31,17 @@ export class ShapeDiverUpdateHandler extends AViewerPlugin<''>{
     }
 
     outputUpdateHandler = async (
-        outputVersion: ShapeDiverResponseOutput
+        outputApi: IOutputApi,
+        materialOutputApi?: IOutputApi
     ) => {
-        const content = outputVersion.content;
+        const content = outputApi.content;
         if (!content?.length) return;
         for (let i = 0; i < content.length; i++) {
             const item = content[i];
             switch (item.format) {
                 case "gltf":
                 case "glb":
-                    return this.onModelLoad({ item, i, output: outputVersion })
+                    return this.onModelLoad({ outputApi, i });
             }
         }
     }

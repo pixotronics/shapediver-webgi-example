@@ -1,4 +1,4 @@
-import { ShapeDiverResponseParameter } from "@shapediver/sdk.geometry-api-sdk-v2";
+import { IParameterApi } from "@shapediver/viewer.session";
 import type {IUiConfigContainer, UiObjectConfig} from "webgi";
 
 /**
@@ -12,7 +12,7 @@ export class ParameterUI implements IUiConfigContainer{
   uiConfig: UiObjectConfig;
   constructor(
     parameters: {
-      [id: string]: ShapeDiverResponseParameter;
+      [id: string]: IParameterApi<unknown>;
     },
     parent: HTMLDivElement,
     parameterUpdateCallback: (parameters: {
@@ -67,7 +67,7 @@ export class ParameterUI implements IUiConfigContainer{
           stepSize,
           onChange: (ev:any) => {
             if(!ev.last) return;
-            this.parameterValues[parameterObject.id] = parameterObject.decimalplaces !== undefined ? props[p].toFixed(parameterObject.decimalplaces) : props[p];
+            this.parameterValues[parameterObject.id] = parameterObject.decimalplaces !== undefined ? props[p].toFixed(parameterObject.decimalplaces) + '' : props[p] + '';
             parameterUpdateCallback(this.parameterValues);
           }
         })
@@ -81,7 +81,7 @@ export class ParameterUI implements IUiConfigContainer{
           label: parameterObject.name,
           property: [props, p],
           onChange: () => {
-            this.parameterValues[parameterObject.id] = props[p];
+            this.parameterValues[parameterObject.id] = props[p] + '';
             parameterUpdateCallback(this.parameterValues);
           }
         })
@@ -92,7 +92,7 @@ export class ParameterUI implements IUiConfigContainer{
           label: parameterObject.name,
           property: [props, p],
           onChange: () => {
-            this.parameterValues[parameterObject.id] = props[p];
+            this.parameterValues[parameterObject.id] = props[p] + '';
             parameterUpdateCallback(this.parameterValues);
           }
         })
@@ -127,7 +127,7 @@ export class ParameterUI implements IUiConfigContainer{
           property: [props, p],
           children,
           onChange: () => {
-            this.parameterValues[parameterObject.id] = props[p];
+            this.parameterValues[parameterObject.id] = props[p] + '';
             parameterUpdateCallback(this.parameterValues);
           }
         })
