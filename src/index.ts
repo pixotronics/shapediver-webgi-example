@@ -10,8 +10,6 @@ import {
   ProgressivePlugin
 } from "webgi";
 import {processModel} from './processModel'
-// @ts-ignore
-import sampleScene from '/sample_scene.vjson?url'
 import {setupDebugUi} from './setupDebugUi'
 
 const init = async () => {
@@ -26,10 +24,10 @@ const init = async () => {
   viewer.getPlugin(LoadingScreenPlugin)!.showFileNames = false;
   viewer.scene.modelRoot.modelObject.scale.set(0.1, 0.1, 0.1);
 
-  const sceneLoad = viewer.load(sampleScene) // no await
+  // const sceneLoad = viewer.load(sampleScene) // no await
+  const sceneLoad = viewer.load("https://playground.ijewel3d.com/assets/scenesettings/ss-001.vjson") // no await
 
   const updateHandler = await viewer.addPlugin(new ShapeDiverUpdateHandler())
-
 
   const isMobile = mobileAndTabletCheck()
   viewer.renderer.renderScale = Math.min(isMobile ? 1.5: 2, window.devicePixelRatio)

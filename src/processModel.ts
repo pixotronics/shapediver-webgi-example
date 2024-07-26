@@ -1,7 +1,7 @@
 import {
     DiamondMaterial,
     DiamondPlugin,
-    IModel,
+    IModel, MaterialConfiguratorBasePlugin,
     Mesh,
     MeshStandardMaterial2,
     Object3D,
@@ -34,6 +34,11 @@ export function processModel(ms: IModel, viewer: ViewerApp) {
     Object.keys(materialLibrary).forEach(key => {
         materialLibrary[key].forEach(s => s.traverse((o: any) => materialCreationDictionary[key](viewer, o)));
     });
+
+    const configurator = viewer.getPluginByType<MaterialConfiguratorBasePlugin>('MaterialConfiguratorPlugin')
+    if (configurator) {
+        configurator.reapplyAll()
+    }
 }
 
 // #endregion Functions (1)
@@ -42,14 +47,13 @@ export function processModel(ms: IModel, viewer: ViewerApp) {
 
 /**
  * Make a gem stone material
- * 
- * @param viewer 
- * @param child 
- * @param accent 
+ *
+ * @param viewer
+ * @param child
+ * @param accent
  */
 const makeGemStone = (viewer: ViewerApp, child: Mesh<any, DiamondMaterial>, accent = false) => {
-    child.material.name = 'Gem'
-    if (accent) child.material.name += ' 01'
+    child.material.name = 'Gem ' + (accent ? '02' : '01')
     viewer.getPlugin(DiamondPlugin)!.makeDiamond(child.material, { cacheKey: accent.toString(), normalMapRes: accent ? 256 : 512 }, {})
 
     child.material.color.set(0xe4e4e4)
@@ -63,20 +67,20 @@ const makeGemStone = (viewer: ViewerApp, child: Mesh<any, DiamondMaterial>, acce
 
 /**
  * Make a metal material
- * 
- * @param viewer 
- * @param child 
+ *
+ * @param viewer
+ * @param child
  */
 const makeMetal = (viewer: ViewerApp, child: Mesh<any, MeshStandardMaterial2>) => {
     child.material.metalness = 1;
     child.material.roughness = 0;
     child.material.color.set(0xcacaca);
-    child.material.name = 'Metal'
+    child.material.name = 'Metal 01'
 }
 
 /**
  * Dictionary of material creators
- * 
+ *
  * The key is the name of the material in the model
  * The value is a function that takes a viewer and a mesh and applies a material to it
  */

@@ -1,5 +1,5 @@
 {
-  "name": "geometry-backend-sdk-with-ui-pixotronics",
+  "name": "shapediver-webgi-example",
   "version": "1.0.0",
   "description": "",
   "main": "index.html",
@@ -12,8 +12,8 @@
     "@shapediver/viewer.session": "3.1.0",
     "typescript": "5.4.2",
     "vite": "^5.1.5",
-    "webgi": "https://storage.googleapis.com/dist.pixotronics.com/webgi/runtime/bundle-0.9.6.tgz",
-    "@types/webgi": "https://storage.googleapis.com/dist.pixotronics.com/webgi/runtime/bundle-types-0.9.6.tgz"
+    "webgi": "https://storage.googleapis.com/dist.pixotronics.com/webgi/runtime/bundle-0.9.13.tgz",
+    "@types/webgi": "https://storage.googleapis.com/dist.pixotronics.com/webgi/runtime/bundle-types-0.9.13.tgz"
   },
   "resolutions": {
     "@babel/preset-env": "7.13.8"
