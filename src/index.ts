@@ -4,7 +4,7 @@ import {ShapeDiverUpdateHandler} from "./shapeDiverUpdateHandler";
 import {
   CoreViewerApp,
   DepthOfFieldPlugin,
-  getUrlQueryParam, GroundPlugin,
+  getUrlQueryParam,
   LoadingScreenPlugin,
   mobileAndTabletCheck,
   ProgressivePlugin
@@ -13,7 +13,7 @@ import {processModel} from './processModel'
 import {setupDebugUi} from './setupDebugUi'
 
 const init = async () => {
-  const ticket = getUrlQueryParam('t') || '05ad12e1f9c943adc306ea8c081989b0e9ba943da6776c7e8925479a6cc7e20f5a3bca32c94c0b28c0be3998b0fc28dff7418a566f0f7c49694e129e7ad570e29b5a46a61bafd848c2d59da55712a1449c583971851bc5c981e65239cc7d7343fd05e3398cf2c8-2bb884c60f43f1b75274bbb7e8229218'
+  const ticket = getUrlQueryParam('t') || 'ee1622c04230a13e8632917d16834f2932ed3373e35a461e0a799b877d8e816f1db6168261d152536868ec651bc641e4eb5bd189520c7e9e6204e73f9b027173f09e8fdd87234380bdacb3240bb71ac8217e0e4c5924bb1dc6e75fcf5d0c76df47502202094bb4-5a7f2add154eb6589385a5718804ce39'
   const modelViewUrl = getUrlQueryParam('u') || "https://sdr8euc1.eu-central-1.shapediver.com";
   const sessionManager = new SessionManager(ticket, modelViewUrl);
 
